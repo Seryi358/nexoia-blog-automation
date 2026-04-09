@@ -153,7 +153,7 @@ class WordPressClient:
             "categories": [category_id],
             "tags": tag_ids,
             "meta": {
-                "rank_math_title": f"{article.title} - NexoIA",
+                "rank_math_title": f"{article.title} - IA Practica",
                 "rank_math_description": article.meta_description,
                 "rank_math_focus_keyword": article.focus_keyword,
             },

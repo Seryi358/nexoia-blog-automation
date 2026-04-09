@@ -35,14 +35,14 @@ def build_article_schema(title: str, description: str, url: str, image_url: str,
         "dateModified": published_date,
         "author": {
             "@type": "Organization",
-            "name": "NexoIA",
+            "name": "IA Practica",
         },
         "publisher": {
             "@type": "Organization",
-            "name": "NexoIA",
+            "name": "IA Practica",
             "logo": {
                 "@type": "ImageObject",
-                "url": f"{url.split('/')[0]}//{url.split('/')[2]}/wp-content/uploads/nexoia-logo.png",
+                "url": f"{url.split('/')[0]}//{url.split('/')[2]}/wp-content/uploads/iapractica-logo.png",
             },
         },
     }

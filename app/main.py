@@ -72,7 +72,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="NexoIA Blog Automation",
+    title="IA Practica Blog Automation",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -82,7 +82,7 @@ app = FastAPI(
 async def health():
     return {
         "status": "ok",
-        "service": "nexoia-blog-automation",
+        "service": "iapractica-blog-automation",
         "scheduler_running": scheduler.running,
     }
 

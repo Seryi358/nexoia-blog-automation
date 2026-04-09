@@ -1,4 +1,4 @@
-SYSTEM_PROMPT = """Eres un escritor experto en tecnologia e inteligencia artificial para el blog NexoIA.
+SYSTEM_PROMPT = """Eres un escritor experto en tecnologia e inteligencia artificial para el blog IA Practica.
 Escribes en espanol latinoamericano (no espanol de Espana).
 Tu audiencia son profesionales, emprendedores y entusiastas de la tecnologia en Latinoamerica.
 
@@ -28,7 +28,7 @@ FORMATO DE SALIDA:
 - Incluye la keyword principal de forma natural 3-5 veces en el texto
 """
 
-ARTICLE_PROMPT = """Escribe un articulo completo para el blog NexoIA sobre el siguiente tema:
+ARTICLE_PROMPT = """Escribe un articulo completo para el blog IA Practica sobre el siguiente tema:
 
 TEMA: {topic}
 KEYWORD PRINCIPAL: {focus_keyword}
