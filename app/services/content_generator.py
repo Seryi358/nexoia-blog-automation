@@ -4,7 +4,7 @@ from loguru import logger
 
 from app.config import Settings
 from app.models import ArticleGenerated
-from app.prompts.article_writer import SYSTEM_PROMPT, ARTICLE_PROMPT, INTERNAL_LINKS_TEMPLATE
+from app.prompts.article_writer import SYSTEM_PROMPT, ARTICLE_PROMPT, INTERNAL_LINKS_TEMPLATE, get_affiliate_instruction
 
 
 class ContentGenerator:
@@ -30,6 +30,9 @@ class ContentGenerator:
             )
             internal_links_instruction = INTERNAL_LINKS_TEMPLATE.format(links=links)
 
+        # Build affiliate links instruction
+        affiliate_links_instruction = get_affiliate_instruction(topic)
+
         prompt = ARTICLE_PROMPT.format(
             topic=topic,
             focus_keyword=focus_keyword,
@@ -38,6 +41,7 @@ class ContentGenerator:
             cluster=cluster,
             min_words=self.min_words,
             max_words=self.max_words,
+            affiliate_links_instruction=affiliate_links_instruction,
             internal_links_instruction=internal_links_instruction,
         )
 

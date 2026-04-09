@@ -47,6 +47,17 @@ REQUISITOS CRITICOS:
 - Incluye ejemplos practicos, casos de uso reales y comparaciones detalladas
 - NO escribas contenido generico o superficial - profundiza en cada punto
 
+RECOMENDACIONES DE HERRAMIENTAS (AFILIADOS):
+Cuando menciones herramientas o servicios en el articulo, incluye naturalmente una seccion o caja de recomendacion usando este formato HTML:
+<div style="background:#f0f7ff;border:2px solid #1E40AF;border-radius:12px;padding:20px;margin:24px 0;">
+<h3 style="color:#1E40AF;margin-top:0;">Herramienta Recomendada: [Nombre]</h3>
+<p>[Descripcion breve de por que la recomendamos - 2-3 oraciones]</p>
+<p><a href="[URL_HERRAMIENTA]" target="_blank" rel="noopener sponsored" style="background:#1E40AF;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Probar [Nombre] gratis</a></p>
+</div>
+Incluye 1-2 cajas de recomendacion por articulo, solo cuando sea relevante al tema. NO fuerces recomendaciones que no tengan relacion con el contenido.
+
+{affiliate_links_instruction}
+
 {internal_links_instruction}
 
 Responde UNICAMENTE con un JSON valido con esta estructura exacta:
@@ -65,3 +76,75 @@ INTERNAL_LINKS_TEMPLATE = """ENLACES INTERNOS: Incluye naturalmente estos enlace
 Usa el formato: <a href="URL">texto ancla descriptivo</a>
 Integralos de forma natural en el contenido, no los fuerces.
 """
+
+AFFILIATE_LINKS_TEMPLATE = """LINKS DE AFILIADO: Cuando menciones estas herramientas, usa estos links exactos:
+{affiliate_links}
+Usa estos links dentro de las cajas de recomendacion. El atributo rel="noopener sponsored" es OBLIGATORIO.
+"""
+
+# Affiliate links configuration - add your links here
+AFFILIATE_LINKS = {
+    "hostinger": {
+        "name": "Hostinger",
+        "url": "https://hostinger.com?REFERRALCODE=1SERGIO58",
+        "description": "Hosting web rapido y economico para tu blog o proyecto online. Dominio gratis incluido."
+    },
+    "canva": {
+        "name": "Canva Pro",
+        "url": "https://www.canva.com/",
+        "description": "Disena contenido profesional con IA integrada. Plantillas, imagenes y herramientas de diseno."
+    },
+    "chatgpt": {
+        "name": "ChatGPT Plus",
+        "url": "https://chat.openai.com/",
+        "description": "Accede a GPT-4o y herramientas avanzadas de IA para productividad y creacion de contenido."
+    },
+    "jasper": {
+        "name": "Jasper AI",
+        "url": "https://www.jasper.ai/",
+        "description": "Plataforma de escritura con IA para marketing. Genera contenido optimizado para SEO."
+    },
+    "surfer": {
+        "name": "Surfer SEO",
+        "url": "https://surferseo.com/",
+        "description": "Optimiza tu contenido para SEO con IA. Analisis de competencia y sugerencias en tiempo real."
+    },
+    "notion": {
+        "name": "Notion",
+        "url": "https://www.notion.so/",
+        "description": "Organiza tu trabajo y vida con IA integrada. Notas, proyectos y bases de datos en un solo lugar."
+    },
+    "midjourney": {
+        "name": "Midjourney",
+        "url": "https://www.midjourney.com/",
+        "description": "Genera imagenes profesionales con IA. La herramienta mas popular para creacion visual."
+    },
+    "cursor": {
+        "name": "Cursor AI",
+        "url": "https://www.cursor.com/",
+        "description": "Editor de codigo con IA que acelera tu programacion. Autocompletado inteligente y refactoring."
+    },
+}
+
+def get_affiliate_instruction(topic: str) -> str:
+    """Select relevant affiliate links based on article topic."""
+    topic_lower = topic.lower()
+    relevant = []
+    for key, info in AFFILIATE_LINKS.items():
+        # Match affiliates to topic keywords
+        if key in topic_lower or info["name"].lower() in topic_lower:
+            relevant.append(f'- {info["name"]}: {info["url"]} - {info["description"]}')
+
+    # Always include 2-3 general affiliates if none matched
+    if len(relevant) < 2:
+        defaults = ["hostinger", "canva", "chatgpt"]
+        for d in defaults:
+            if d in AFFILIATE_LINKS and len(relevant) < 3:
+                info = AFFILIATE_LINKS[d]
+                link = f'- {info["name"]}: {info["url"]} - {info["description"]}'
+                if link not in relevant:
+                    relevant.append(link)
+
+    if relevant:
+        return AFFILIATE_LINKS_TEMPLATE.format(affiliate_links="\n".join(relevant))
+    return ""
