@@ -36,13 +36,16 @@ KEYWORDS SECUNDARIAS: {secondary_keywords}
 CATEGORIA: {category}
 CLUSTER: {cluster}
 
-REQUISITOS:
-- Longitud: entre {min_words} y {max_words} palabras
-- Incluye al menos 5 secciones con H2
-- Incluye subsecciones H3 donde sea relevante
-- Incluye una seccion de FAQ al final con 3-4 preguntas
+REQUISITOS CRITICOS:
+- LONGITUD MINIMA OBLIGATORIA: {min_words} palabras. Esto es CRITICO. Cuenta tus palabras. Articulos menores a {min_words} palabras seran rechazados. Escribe contenido extenso y detallado.
+- Incluye AL MENOS 7 secciones con H2, cada una con 2-4 parrafos sustanciales
+- Incluye subsecciones H3 dentro de cada H2 con contenido detallado
+- Cada seccion H2 debe tener MINIMO 150 palabras
+- Incluye una seccion de FAQ al final con 4-5 preguntas con respuestas detalladas (3-4 oraciones cada respuesta)
 - La keyword principal debe aparecer en el primer parrafo
 - Incluye datos y estadisticas actualizadas a 2026
+- Incluye ejemplos practicos, casos de uso reales y comparaciones detalladas
+- NO escribas contenido generico o superficial - profundiza en cada punto
 
 {internal_links_instruction}
 

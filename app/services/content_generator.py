@@ -50,7 +50,7 @@ class ContentGenerator:
                 {"role": "user", "content": prompt},
             ],
             temperature=0.7,
-            max_tokens=4096,
+            max_tokens=10000,
             response_format={"type": "json_object"},
         )
 
@@ -65,7 +65,7 @@ class ContentGenerator:
             category=category,
             cluster=cluster,
             content_html=data["content_html"],
-            word_count=data.get("word_count", self._count_words(data["content_html"])),
+            word_count=self._count_words(data["content_html"]),
             tags=data.get("tags", []),
         )
 
