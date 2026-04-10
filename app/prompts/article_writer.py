@@ -86,7 +86,7 @@ Usa estos links dentro de las cajas de recomendacion. El atributo rel="noopener 
 AFFILIATE_LINKS = {
     "hostinger": {
         "name": "Hostinger",
-        "url": "https://hostinger.com?REFERRALCODE=1SERGIO58",
+        "url": "https://www.hostinger.com/co?REFERRALCODE=FMKSCASTETQN",
         "description": "Hosting web rapido y economico para tu blog o proyecto online. Dominio gratis incluido."
     },
     "canva": {
@@ -123,6 +123,16 @@ AFFILIATE_LINKS = {
         "name": "Cursor AI",
         "url": "https://www.cursor.com/",
         "description": "Editor de codigo con IA que acelera tu programacion. Autocompletado inteligente y refactoring."
+    },
+    "amazon_libros_ia": {
+        "name": "Libros de IA en Amazon",
+        "url": "https://www.amazon.com/s?k=inteligencia+artificial&tag=iapractica20-20",
+        "description": "Los mejores libros sobre inteligencia artificial, machine learning y productividad con IA."
+    },
+    "amazon_tech": {
+        "name": "Accesorios Tech en Amazon",
+        "url": "https://www.amazon.com/s?k=tech+gadgets+productivity&tag=iapractica20-20",
+        "description": "Gadgets y accesorios de tecnologia para mejorar tu productividad y setup de trabajo."
     },
 }
 
