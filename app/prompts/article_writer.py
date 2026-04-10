@@ -134,6 +134,11 @@ AFFILIATE_LINKS = {
         "url": "https://www.amazon.com/s?k=tech+gadgets+productivity&tag=iapractica20-20",
         "description": "Gadgets y accesorios de tecnologia para mejorar tu productividad y setup de trabajo."
     },
+    "hotmart_transformar": {
+        "name": "Curso: Te vas a Transformar",
+        "url": "https://go.hotmart.com/V99797385D",
+        "description": "Curso completo de transformacion digital y emprendimiento online. El mas vendido en Hotmart con 150° de temperatura."
+    },
 }
 
 def get_affiliate_instruction(topic: str) -> str:
