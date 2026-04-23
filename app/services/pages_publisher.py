@@ -9,6 +9,7 @@ import httpx
 from loguru import logger
 
 from app.config import Settings
+from app.services.wp_auth import WPAuth
 
 
 PAGE_SLUGS = {
@@ -23,19 +24,13 @@ PAGES_DIR = Path("wordpress-config/pages")
 
 class PagesPublisher:
     def __init__(self, settings: Settings):
-        import base64
-
-        creds = f"{settings.wp_user}:{settings.wp_app_password}"
         self.base_url = settings.wp_url.rstrip("/")
         self.api_url = f"{self.base_url}/wp-json/wp/v2"
-        self.headers = {
-            "Authorization": f"Basic {base64.b64encode(creds.encode()).decode()}",
-            "Content-Type": "application/json",
-            "User-Agent": "IAPracticaBot/1.0 (+https://iapractica.co)",
-        }
+        self.auth = WPAuth(settings)
 
     async def publish_all(self) -> dict:
         results = {}
+        headers = await self.auth.headers()
         async with httpx.AsyncClient(timeout=30) as client:
             for slug, title in PAGE_SLUGS.items():
                 html_path = PAGES_DIR / f"{slug}.html"
@@ -44,7 +39,7 @@ class PagesPublisher:
                     continue
 
                 content = html_path.read_text(encoding="utf-8")
-                existing_id = await self._find_page_id(client, slug)
+                existing_id = await self._find_page_id(client, slug, headers)
 
                 payload = {
                     "title": title,
@@ -57,14 +52,14 @@ class PagesPublisher:
                     resp = await client.post(
                         f"{self.api_url}/pages/{existing_id}",
                         json=payload,
-                        headers=self.headers,
+                        headers=headers,
                     )
                     action = "updated"
                 else:
                     resp = await client.post(
                         f"{self.api_url}/pages",
                         json=payload,
-                        headers=self.headers,
+                        headers=headers,
                     )
                     action = "created"
 
@@ -86,11 +81,11 @@ class PagesPublisher:
 
         return results
 
-    async def _find_page_id(self, client: httpx.AsyncClient, slug: str) -> int | None:
+    async def _find_page_id(self, client: httpx.AsyncClient, slug: str, headers: dict) -> int | None:
         resp = await client.get(
             f"{self.api_url}/pages",
             params={"slug": slug, "status": "publish,draft,future,pending,private"},
-            headers=self.headers,
+            headers=headers,
         )
         if resp.status_code != 200:
             return None

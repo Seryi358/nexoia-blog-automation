@@ -1,10 +1,10 @@
-import base64
 import httpx
 from loguru import logger
 
 from app.config import Settings
 from app.models import ArticleGenerated, PublishResult
 from app.services.seo_optimizer import build_article_jsonld
+from app.services.wp_auth import WPAuth
 
 
 # WordPress category name → ID cache.
@@ -23,26 +23,20 @@ class WordPressClient:
     def __init__(self, settings: Settings):
         self.base_url = settings.wp_url.rstrip("/")
         self.api_url = f"{self.base_url}/wp-json/wp/v2"
-        credentials = f"{settings.wp_user}:{settings.wp_app_password}"
-        encoded = base64.b64encode(credentials.encode()).decode()
-        self.auth_header = f"Basic {encoded}"
-        self.headers = {
-            "Authorization": self.auth_header,
-            "Content-Type": "application/json",
-            "User-Agent": "IAPracticaBot/1.0 (+https://iapractica.co)",
-        }
+        self.auth = WPAuth(settings)
 
     async def _ensure_category(self, slug: str) -> int:
         if slug in _category_cache:
             return _category_cache[slug]
 
         name = CATEGORY_MAP.get(slug, slug.replace("-", " ").title())
+        headers = await self.auth.headers()
 
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.get(
                 f"{self.api_url}/categories",
                 params={"slug": slug},
-                headers=self.headers,
+                headers=headers,
             )
             try:
                 cats = resp.json()
@@ -55,7 +49,7 @@ class WordPressClient:
             resp = await client.post(
                 f"{self.api_url}/categories",
                 json={"name": name, "slug": slug},
-                headers=self.headers,
+                headers=headers,
             )
             if resp.status_code in (200, 201):
                 cat_id = resp.json()["id"]
@@ -69,13 +63,15 @@ class WordPressClient:
         if not tag_names:
             return []
         tag_ids: list[int] = []
+        headers = await self.auth.headers()
+
         async with httpx.AsyncClient(timeout=30) as client:
             for tag_name in tag_names[:8]:
                 try:
                     resp = await client.get(
                         f"{self.api_url}/tags",
                         params={"search": tag_name},
-                        headers=self.headers,
+                        headers=headers,
                     )
                     tags = resp.json() if resp.status_code == 200 else []
                     matched = None
@@ -91,7 +87,7 @@ class WordPressClient:
                     create_resp = await client.post(
                         f"{self.api_url}/tags",
                         json={"name": tag_name},
-                        headers=self.headers,
+                        headers=headers,
                     )
                     if create_resp.status_code in (200, 201):
                         tag_ids.append(create_resp.json()["id"])
@@ -100,12 +96,13 @@ class WordPressClient:
         return tag_ids
 
     async def slug_exists(self, slug: str) -> bool:
+        headers = await self.auth.headers()
         try:
             async with httpx.AsyncClient(timeout=15) as client:
                 resp = await client.get(
                     f"{self.api_url}/posts",
                     params={"slug": slug, "status": "publish,draft,future,pending,private"},
-                    headers=self.headers,
+                    headers=headers,
                 )
                 if resp.status_code == 200:
                     data = resp.json()
@@ -124,6 +121,7 @@ class WordPressClient:
         return desired  # give up and let WP handle it
 
     async def upload_image_from_url(self, image_url: str, filename: str) -> int | None:
+        auth_hdr = await self.auth.auth_only_header()
         try:
             async with httpx.AsyncClient(timeout=60) as client:
                 img_resp = await client.get(image_url)
@@ -136,10 +134,9 @@ class WordPressClient:
                 fname = f"{filename}.{ext}"
 
                 upload_headers = {
-                    "Authorization": self.auth_header,
+                    **auth_hdr,
                     "Content-Disposition": f'attachment; filename="{fname}"',
                     "Content-Type": content_type,
-                    "User-Agent": self.headers["User-Agent"],
                 }
                 resp = await client.post(
                     f"{self.api_url}/media",
@@ -163,7 +160,6 @@ class WordPressClient:
         article: ArticleGenerated,
         featured_image_url: str | None = None,
     ) -> PublishResult:
-        # Resolve category, tags and a unique slug before composing the payload.
         category_id = await self._ensure_category(article.category)
         tag_ids = await self._ensure_tags(article.tags)
         unique_slug = await self.resolve_unique_slug(article.slug)
@@ -178,14 +174,12 @@ class WordPressClient:
             faqs=article.faqs_jsonld,
         )
 
-        # Upload featured image.
         featured_media_id = None
         if featured_image_url:
             featured_media_id = await self.upload_image_from_url(
                 featured_image_url, unique_slug
             )
 
-        # Schema block goes at the end of the content so WP renders it inside <main>.
         enriched_html = article.content_html + "\n" + jsonld_block
 
         post_data = {
@@ -205,11 +199,12 @@ class WordPressClient:
         if featured_media_id:
             post_data["featured_media"] = featured_media_id
 
+        headers = await self.auth.headers()
         async with httpx.AsyncClient(timeout=45) as client:
             resp = await client.post(
                 f"{self.api_url}/posts",
                 json=post_data,
-                headers=self.headers,
+                headers=headers,
             )
 
             if resp.status_code in (200, 201):

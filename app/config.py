@@ -13,8 +13,10 @@ class Settings(BaseSettings):
 
     # WordPress REST API
     wp_url: str  # e.g. https://iapractica.co
-    wp_user: str  # WordPress username
+    wp_user: str  # WordPress username (login name, not email)
     wp_app_password: str  # WordPress Application Password
+    wp_password: str = ""  # Optional login password, used when wp_auth_method=jwt
+    wp_auth_method: str = "basic"  # "basic" or "jwt"
 
     # Scheduler
     publish_days: str = "mon,wed,fri"
