@@ -240,6 +240,15 @@ async def get_schedule():
     }
 
 
+@app.post("/publish-pages")
+async def publish_pages():
+    """Publish/update the legal + about + contact pages (AdSense prerequisites)."""
+    from app.services.pages_publisher import PagesPublisher
+    publisher = PagesPublisher(settings)
+    result = await publisher.publish_all()
+    return result
+
+
 @app.get("/ads.txt", response_class=Response)
 async def ads_txt():
     """Serve ads.txt so AdSense can verify publisher ownership.

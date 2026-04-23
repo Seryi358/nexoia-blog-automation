@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY seed_content_plan.py .
 COPY content_plan.json* ./
+COPY wordpress-config/ ./wordpress-config/
 
 # Data dir must be persisted via volume mount in production.
 RUN mkdir -p /app/data
