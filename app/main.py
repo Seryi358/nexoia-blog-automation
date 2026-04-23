@@ -243,10 +243,41 @@ async def get_schedule():
 @app.post("/publish-pages")
 async def publish_pages():
     """Publish/update the legal + about + contact pages (AdSense prerequisites)."""
-    from app.services.pages_publisher import PagesPublisher
-    publisher = PagesPublisher(settings)
-    result = await publisher.publish_all()
-    return result
+    import traceback
+    try:
+        from app.services.pages_publisher import PagesPublisher
+        publisher = PagesPublisher(settings)
+        result = await publisher.publish_all()
+        return result
+    except Exception as e:
+        logger.exception("publish-pages crashed")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": str(e),
+                "type": e.__class__.__name__,
+                "trace": traceback.format_exc().splitlines()[-15:],
+            },
+        )
+
+
+@app.get("/diag")
+async def diag():
+    """Diagnose container state: files on disk, CWD, env keys (not values)."""
+    from pathlib import Path
+    import os
+    pages_dir = Path("wordpress-config/pages")
+    return {
+        "cwd": str(Path.cwd()),
+        "wp_url": settings.wp_url,
+        "wp_user_set": bool(settings.wp_user),
+        "wp_password_set": bool(settings.wp_app_password),
+        "openai_key_prefix": settings.openai_api_key[:8] + "...",
+        "kie_key_prefix": settings.kie_api_key[:8] + "...",
+        "env_keys": sorted(k for k in os.environ.keys() if not k.startswith("_")),
+        "pages_dir_exists": pages_dir.exists(),
+        "pages_files": sorted(p.name for p in pages_dir.glob("*.html")) if pages_dir.exists() else [],
+    }
 
 
 @app.get("/ads.txt", response_class=Response)
