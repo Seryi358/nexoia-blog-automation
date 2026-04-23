@@ -15,9 +15,13 @@ COPY content_plan.json* ./
 RUN mkdir -p /app/data
 VOLUME ["/app/data"]
 
-EXPOSE 8001
+# PORT is overridable (EasyPanel routes the domain to this port). Default 80
+# matches EasyPanel's default domain config; change via env if you front the
+# container behind a custom proxy.
+ENV PORT=80
+EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-    CMD python -c "import httpx; r = httpx.get('http://localhost:8001/health', timeout=3); assert r.status_code == 200"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
+    CMD python -c "import os, httpx; r = httpx.get(f'http://localhost:{os.environ.get(\"PORT\",\"80\")}/health', timeout=3); assert r.status_code == 200"
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-80}"]
