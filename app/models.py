@@ -10,6 +10,8 @@ class ArticleGenerated(BaseModel):
     cluster: str
     content_html: str
     word_count: int
+    outline: str = ""
+    faqs_jsonld: list[dict] = []
     internal_links: list[str] = []
     tags: list[str] = []
 

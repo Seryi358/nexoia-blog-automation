@@ -1,7 +1,7 @@
 services:
   blog-automation:
     build: .
-    container_name: nexoia-automation
+    container_name: iapractica-blog
     restart: unless-stopped
     ports:
       - "8001:8001"
@@ -12,13 +12,13 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768M
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; r = httpx.get('http://localhost:8001/health'); assert r.status_code == 200"]
+      test: ["CMD", "python", "-c", "import httpx; r = httpx.get('http://localhost:8001/health', timeout=3); assert r.status_code == 200"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 40s
 
 volumes:
   blog-data:
